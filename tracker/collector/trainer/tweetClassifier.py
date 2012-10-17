@@ -18,7 +18,7 @@ import multiprocessing
 
 class RawClassifier(object):
     statsData = {}
-    dataDir = "/home/gx/Sites/SMM/trunk/tracker/data"
+    dataDir = "/home/toni/git/financial-twitter-sentiment-analyzer/tracker/data"
     limit = {}
     skip = 0
     p2_f_limit = 0.75
