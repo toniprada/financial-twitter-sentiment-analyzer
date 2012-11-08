@@ -8,6 +8,7 @@ Financial-twitter-tracker it's a sentiment analysis library for tweets with a fi
 
 - Cyhex for [smm](https://github.com/cyhex/smm).
 - [Natural Language Toolkit](http://nltk.org/).
+- Bill MacDonald for the [words lists](http://www.nd.edu/~mcdonald/Word_Lists.html)
 
 ## License
 
