@@ -1,7 +1,7 @@
-financial-twitter-tracker
+financial-twitter-sentiment-analyzer
 ==========
 
-Financial-twitter-tracker it's a sentiment analysis library for tweets with a financial context. It's currently under development.
+Financial-twitter-sentiment-analyzer it's a sentiment analysis library for tweets with a financial context. It's currently under development.
 
 
 ## Thanks to
