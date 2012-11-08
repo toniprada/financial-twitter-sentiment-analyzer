@@ -7,7 +7,7 @@ import cPickle
 import os
 import gzip
 from nltk.probability import FreqDist
-from tracker.lib.supportedLangs import supportedLangs
+from lib.supportedLangs import supportedLangs
 import re
 
 

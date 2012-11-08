@@ -6,17 +6,19 @@ import time
 import Queue
 import cPickle
 import os
-sys.path.append('../')
-from tracker.lib.moodClassifierClient import MoodClassifierTCPClient
+from lib.moodClassifierClient import MoodClassifierTCPClient
+sys.path.append('dict')
+import dictionary
+# sys.path.append('../')
 
 MCC = MoodClassifierTCPClient('127.0.0.1',6666)
 
 
 class StreamCollector(threading.Thread):
 	""" Filter """
-	words = ["españa"]
+	words = ["dow jones", "nasdaq", "S&P 500", "S&P500"]
 	""" Limit """
-	limit = 10
+	limit = 100
 	""" Twitter user/pass"""
 	twitterUser = 'toni_gsi'
 	twitterPass = 'gsigsi'
@@ -30,15 +32,18 @@ class StreamCollector(threading.Thread):
 	def run(self):
 		with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
 			for tweet in stream:
-				self.queue.put(tweet)
-				self.count += 1
-				if (self.count >= self.limit):
-					break
+				if tweet.get('text'):
+					if 'rt' in tweet.get('text').lower():
+						continue
+					self.queue.put(tweet)
+					self.count += 1
+					if (self.count >= self.limit):
+						break
 
 class StreamWriter(threading.Thread):
 
-	fileNameRaw = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/tweets_raw.dat')))
-	fileNameMood = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/tweets_mood.dat')))
+	fileNameRaw = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/output/tweets_raw.dat')))
+	fileNameMood = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/output/tweets_mood.dat')))
 
 	def __init__(self, tweetsQueue):
 		threading.Thread.__init__(self)  
@@ -51,9 +56,11 @@ class StreamWriter(threading.Thread):
 			tweet = self.queue.get(block=True)
 			cPickle.dump(tweet, self.fileRaw,protocol=1)
 			text = unicode(tweet.get('text'));
-			textMood = MCC.classify([{'text': text }], 'search')
+			# borra las search keywords antes de clasificar? puede ser
+			# total salen en todos los tweets asi que no aportan informacion...
+			textMood = MCC.classify([{'text': text}], "dow jones")
 			print textMood, '\n'
-			cPickle.dump(tweet, self.fileMood,protocol=1)
+			cPickle.dump(tweet, self.fileMood, protocol=1)
 
 try:
 	tweetsQueue = Queue.Queue()

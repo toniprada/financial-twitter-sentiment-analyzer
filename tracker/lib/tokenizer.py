@@ -2,11 +2,11 @@
 import nltk
 from collections import defaultdict
 import re
-from tracker.lib import ngrams
+from lib import ngrams
 
 class tokenizer(object):
     
-    emos = {'##s##': [':)',':-)',';-)',': )',':d','=)',':p',';)','<3'],
+    emos = {'##s##': [':)',':-)',';-)',': )',':d','=)',':p',';)','<3','XD','xD'],
              '##b##': [':(',':-(',': (']
             }
     
