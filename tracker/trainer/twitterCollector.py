@@ -15,7 +15,7 @@ class StreamCollector(threading.Thread):
     """ Filter """
     words = ["st"]
     """ Limit """
-    limit = 300000
+    limit = 1000000
     """ Twitter user/pass"""
     twitterUser = 'toni_gsi'
     twitterPass = 'gsigsi'

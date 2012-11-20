@@ -41,7 +41,7 @@ class RawClassifier(object):
         self.tweetsFile = open(os.path.join(self.dataDir,data_file),'rb')
 
         self.limit['en'] = 150000
-        self.limit['default'] = 1000
+        self.limit['default'] = 10000
         self.count = 0
         
     
@@ -111,26 +111,29 @@ class RawClassifier(object):
             return 1
        
     def checkKeyWords(self,text):
-        if self.containsPositiveWord(text):
+        count = self.containsPositiveWord(text) + self.containsNegativeWord(text);
+        if count > 0:
             return 'p'
-        if self.containsNegativeWord(text):
+        if count < 0:
             return 'n'
         return 'x'
 
     def containsPositiveWord(self,text):
+        count = 0
         for item in dictionary.positive:
             if item in text:
+                count += 1                
                 #print 'p:',item
-                return True
-        return False
+        return count
 
 
     def containsNegativeWord(self,text):
+        count = 0
         for item in dictionary.negative:
             if item in text:
                 #print 'n:', item
-                return True
-        return False
+                count -= 1                
+        return count
 
     def classifiyRaw(self,file,stripSmiles):
         while True:
