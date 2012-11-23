@@ -10,24 +10,24 @@ from lib.moodClassifierClient import MoodClassifierTCPClient
 sys.path.append('dict')
 import dictionary
 import requests
-
 # sys.path.append('../')
 
 MCC = MoodClassifierTCPClient('127.0.0.1',6666)
+words = ['dow jones', 'nasdaq', 'S&P 500', 'S&P500', 'stock']
+
 
 
 class StreamCollector(threading.Thread):
-	""" Filter """
-	words = ["stock"]
 	""" Limit """
 	limit = 100
 	""" Twitter user/pass"""
 	twitterUser = 'toni_gsi'
 	twitterPass = 'gsigsi'
 
-	def __init__(self, tweetsQueue):
+	def __init__(self, tweetsQueue, words):
 		threading.Thread.__init__(self)  
 		self.queue = tweetsQueue
+		self.words = words
 		self.count = 0
 
 
@@ -43,14 +43,17 @@ class StreamCollector(threading.Thread):
 					if (self.count >= self.limit):
 						break
 
+
+
 class StreamWriter(threading.Thread):
 
 	fileNameRaw = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/output/tweets_raw.dat')))
 	fileNameMood = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/output/tweets_mood.dat')))
 
-	def __init__(self, tweetsQueue):
+	def __init__(self, tweetsQueue, words):
 		threading.Thread.__init__(self)  
 		self.queue = tweetsQueue
+		self.words = words
 		self.fileRaw = open(self.fileNameRaw,'w')
 		self.fileMood = open(self.fileNameMood,'w')
 
@@ -61,10 +64,11 @@ class StreamWriter(threading.Thread):
 			text = unicode(tweet.get('text'));
 			# borra las search keywords antes de clasificar? puede ser
 			# total salen en todos los tweets asi que no aportan informacion...
-			textMood = MCC.classify([{'text': text}], "dow jones nasdaq S&P 500 S&P500 stock")
-			#print textMood, '\n'
+			textMood = MCC.classify([{'text': text}], " ".join(self.words))
 
-			self.sendFile(tweet, textMood)
+			#print textMood, '\n'
+			#self.sendFile(tweet, textMood)
+			print self.createFile(tweet, textMood)
 
 			cPickle.dump(tweet, self.fileMood, protocol=1)
 
@@ -89,7 +93,9 @@ xmlns:marl="http://purl.org/marl/">
 		s += str(tweet.get('id_str'))
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>
-		<dc:title>stock</dc:title>
+		<dc:title>"""
+		s += str(" ".join(self.words))
+		s += """</dc:title>
 		<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">"""
 		s += str(tweet.get('created_at'))
 		s += """</dcterms:created>
@@ -114,26 +120,19 @@ xmlns:marl="http://purl.org/marl/">
 		s += """
 	</rdf:Description>
 </rdf:RDF>"""
-
-		# try:
-		# 	name = tweet.get("id_str") + '.rdf'
-		# 	f = open(name,'wb')
-		# 	f.write(s)
-		# except IOError:
-		# 	print "IOError"
-		# 	pass
-		# finally:
-		# 	f.close()
-
 		return s;
+
+
+
+
 try:
 	tweetsQueue = Queue.Queue()
 	# collector thread
-	c = StreamCollector(tweetsQueue)
+	c = StreamCollector(tweetsQueue, words)
 	c.daemon = True
 	c.start()
 	# writer thread
-	w = StreamWriter(tweetsQueue)
+	w = StreamWriter(tweetsQueue, words)
 	w.daemon = True
 	w.start()
 	while True:
