@@ -15,7 +15,10 @@ from lib.supportedLangs import supportedLangs
 from lib.mood_detection import MoodDetectTrainData, MoodDetectTrainer, MoodDetect
 sys.path.append('../dict')
 import dictionary
-
+sys.path.append('../dict/sentiwordnet')
+sys.path.append('../dict')
+from sentiwordnet import SentiWordNetCorpusReader, SentiSynset
+import nltk
 
 
 class RawClassifier(object):
@@ -43,6 +46,10 @@ class RawClassifier(object):
         self.limit['en'] = 150000
         self.limit['default'] = 10000
         self.count = 0
+
+        swn_filename = '../dict/sentiwordnet/SentiWordNet_3.0.0_20100705.txt'
+        self.swn = SentiWordNetCorpusReader(swn_filename)
+
         
     
     def classifyP1(self,stripSmiles=False):
@@ -109,6 +116,15 @@ class RawClassifier(object):
         else:
             self.statsData[lang][mood]+=1
             return 1
+
+    def checkWithSentiwordnet(self, text):
+        tokens = nltk.word_tokenize(text)
+        for token in tokens: 
+            synsets = self.swn.senti_synsets(token)
+            if len(synsets) > 0: 
+                synset = self.swn.senti_synset(str(synsets[0]))
+                print synset
+    
        
     def checkKeyWords(self,text):
         count = self.containsPositiveWord(text) + self.containsNegativeWord(text);
@@ -163,7 +179,7 @@ class RawClassifier(object):
                     continue
 
                 lang  = self.langClassifier.detect(text)
-               
+
                 if stripSmiles:
                     text = self.stripSmiles(text)
                 
@@ -173,7 +189,7 @@ class RawClassifier(object):
                     print 'limit reached for ' , lang[0]
                     continue
 
-                #????
+
                 if sres == -1:
                     print "done for %s" % mood
                     break
@@ -181,6 +197,8 @@ class RawClassifier(object):
                 if self.count and self.count % 100 == 0:
                     print "classified %d tweets" % (self.count)
                 self.count += 1
+
+                self.checkWithSentiwordnet(text)
 
                 self.training_data_p1.addRow(text, mood, lang[0])
 
@@ -196,13 +214,11 @@ class RawClassifier(object):
                 break
             except:
                 breakes +=1
-            
-        print file
         print 'tweets:',rows,' breakes:',breakes
         
     
 if __name__ == "__main__":
-    
+
     cls = RawClassifier(traing_data_fileP1='mood_traing_p1.dat',
                         traing_data_fileP2='mood_traing_150k_1k_0.6.dat',
                         data_file='tweets_raw.dat')

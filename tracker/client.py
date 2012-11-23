@@ -67,8 +67,8 @@ class StreamWriter(threading.Thread):
 			textMood = MCC.classify([{'text': text}], " ".join(self.words))
 
 			#print textMood, '\n'
-			#self.sendFile(tweet, textMood)
-			print self.createFile(tweet, textMood)
+			self.sendFile(tweet, textMood)
+			#print self.createFile(tweet, textMood)
 
 			cPickle.dump(tweet, self.fileMood, protocol=1)
 
@@ -90,20 +90,18 @@ xmlns:sioc="http://rdfs.org/sioc/ns#"
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:marl="http://purl.org/marl/">
 	<rdf:Description rdf:about="https://api.twitter.com/1/statuses/show/'"""
-		s += str(tweet.get('id_str'))
+		s += tweet.get('id_str').encode('utf-8')
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>
-		<dc:title>"""
-		s += str(" ".join(self.words))
-		s += """</dc:title>
+		<dc:title>TEST</dc:title>
 		<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">"""
-		s += str(tweet.get('created_at'))
+		s += tweet.get('created_at').encode('utf-8')
 		s += """</dcterms:created>
 		<sioc:has_creator rdf:resource="https://twitter.com/"""
-		s += str(tweet.get('user').get('screen_name')) 
+		s += tweet.get('user').get('screen_name').encode('utf-8')
 		s += """"/>
 		<marl:opinionText>"""
-		s += str(tweet.get(u'text'))
+		s += tweet.get(u'text').encode('utf-8')
 		s += """</marl:opinionText>
 		<marl:polarityValue>"""
 		s += str(mood[0].get('x_mood'))

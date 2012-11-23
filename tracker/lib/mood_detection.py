@@ -91,7 +91,7 @@ class MoodDetect(object):
     
     
     def classify(self,text,lang):
-        print "mood_detection - classify: text=", text
+        #print "mood_detection - classify: text=", text
         
 
         if not isinstance(text,unicode):
