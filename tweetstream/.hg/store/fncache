@@ -1,0 +1,13 @@
+data/tweetstream/deprecated.py.i
+data/setup.py.i
+data/conftest.py.i
+data/servercontext.py.i
+data/tweetstream/streamclasses.py.i
+data/tweetstream/__init__.py.i
+data/tests/test_tweetstream.py.i
+data/.hgtags.i
+data/README.i
+data/.hgignore.i
+data/tox.ini.i
+data/LICENSE.i
+data/CHANGELOG.i
